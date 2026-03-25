@@ -28,12 +28,13 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Update profile (full_name, role)
-        const profileUpdates: any = { updated_at: new Date().toISOString() }
+        // Update profile (full_name, role, email)
+        const profileUpdates: any = {}
+        if (email) profileUpdates.email = email
         if (full_name !== undefined) profileUpdates.full_name = full_name
         if (role) profileUpdates.role = role
 
-        if (Object.keys(profileUpdates).length > 1) { // >1 because updated_at is always there
+        if (Object.keys(profileUpdates).length > 0) {
             const { error: profileError } = await supabaseAdmin
                 .from('profiles')
                 .update(profileUpdates)

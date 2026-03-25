@@ -11,9 +11,6 @@ export const metadata: Metadata = {
     description: 'Plataforma del programa de pre-incubación para jóvenes emprendedores de provincias del Perú.',
     type: 'website',
   },
-  icons: {
-    icon: '/favicon.ico',
-  },
 }
 
 export default function RootLayout({
