@@ -1,0 +1,347 @@
+/* ===== AVENIR FONT CONFIGURATION ===== */
+
+@font-face {
+  font-family: 'Avenir';
+  src: url('/fonts/avenir/Avenir Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Avenir';
+  src: url('/fonts/avenir/Avenir Book.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Avenir';
+  src: url('/fonts/avenir/Avenir Regular.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Avenir';
+  src: url('/fonts/avenir/Avenir Heavy.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Avenir';
+  src: url('/fonts/avenir/Avenir Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@import "tailwindcss";
+
+/* ===== TAILWIND V4 THEME ===== */
+@theme inline {
+  /* Navy palette */
+  --color-navy-50: #E8EBF3;
+  --color-navy-100: #C2CADE;
+  --color-navy-200: #9BA9C9;
+  --color-navy-300: #7488B4;
+  --color-navy-400: #4D679F;
+  --color-navy-500: #26468A;
+  --color-navy-600: #1C3A74;
+  --color-navy-700: #162E5D;
+  --color-navy-800: #112246;
+  --color-navy-900: #0B162F;
+  --color-navy-950: #060D1F;
+
+  /* Yellow palette */
+  --color-yellow-50: #FFFAEB;
+  --color-yellow-100: #FFF2CC;
+  --color-yellow-200: #FFEAA8;
+  --color-yellow-300: #FFE285;
+  --color-yellow-400: #FFD962;
+  --color-yellow-500: #FFD13F;
+  --color-yellow-600: #FFC700;
+  --color-yellow-700: #E0B000;
+  --color-yellow-800: #B88E00;
+  --color-yellow-900: #8F6C00;
+  --color-yellow-950: #664B00;
+
+  /* Emerald accent (for success states) */
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+
+  /* Red accent (for error/danger) */
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+
+  /* Fonts */
+  --font-sans: 'Avenir', system-ui, -apple-system, sans-serif;
+
+  /* Animations */
+  --animate-fade-in-up: fadeInUp 0.6s ease-out forwards;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-shimmer: shimmer 3s infinite;
+  --animate-scale-in: scaleIn 0.5s ease-out forwards;
+  --animate-slide-in-left: slideInLeft 0.6s ease-out forwards;
+  --animate-pulse-slow: pulse-slow 3s ease-in-out infinite;
+  --animate-spin-slow: spin 3s linear infinite;
+
+  @keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+  @keyframes scaleIn {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes slideInLeft {
+    0% { opacity: 0; transform: translateX(-20px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0B162F;
+  color: #ffffff;
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== GLASSMORPHISM ===== */
+
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: border-color 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ===== GRADIENTS ===== */
+
+.bg-gradient-dark {
+  background: linear-gradient(180deg, #0B162F 0%, #0f1d3d 100%);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #FFC700 0%, #FFD13F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== HOVER EFFECTS ===== */
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 24px rgba(255, 199, 0, 0.3);
+}
+
+/* ===== STATUS BADGES ===== */
+
+.status-pending {
+  background: rgba(255, 199, 0, 0.08);
+  color: #FFD13F;
+  border: 1px solid rgba(255, 199, 0, 0.2);
+}
+
+.status-submitted {
+  background: rgba(38, 70, 138, 0.3);
+  color: #9BA9C9;
+  border: 1px solid rgba(38, 70, 138, 0.5);
+}
+
+.status-approved {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-rejected {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* ===== INPUT STYLES ===== */
+
+.input-glass {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  color: white;
+  font-family: 'Avenir', sans-serif;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.input-glass::placeholder {
+  color: rgba(155, 169, 201, 0.5);
+}
+
+.input-glass:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 199, 0, 0.4);
+  box-shadow: 0 0 0 3px rgba(255, 199, 0, 0.08);
+}
+
+.input-glass:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.input-glass option {
+  background: #0B162F;
+  color: white;
+}
+
+/* ===== CALENDAR STYLES ===== */
+
+.calendar-day {
+  transition: all 0.2s ease;
+  border-radius: 0.5rem;
+}
+
+.calendar-day:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.calendar-day.has-session {
+  position: relative;
+}
+
+.calendar-day.has-session::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #FFC700;
+}
+
+.calendar-day.today {
+  background: rgba(255, 199, 0, 0.1);
+  border: 1px solid rgba(255, 199, 0, 0.3);
+}
+
+/* Week color coding */
+.week-1 { --week-color: #FFC700; }
+.week-2 { --week-color: #34d399; }
+.week-3 { --week-color: #818cf8; }
+.week-4 { --week-color: #f472b6; }
+
+/* ===== HIGHLIGHT BOX ===== */
+
+.highlight-box {
+  background: #FFC700;
+  color: #0B162F;
+  padding: 0.25rem 0.75rem;
+  font-weight: 700;
+  display: inline-block;
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ===== SIDEBAR ===== */
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-link.active {
+  color: #FFC700;
+  background: rgba(255, 199, 0, 0.08);
+}
+
+/* ===== DRAG AND DROP ===== */
+
+.drop-zone {
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+  border-color: rgba(255, 199, 0, 0.4);
+  background: rgba(255, 199, 0, 0.04);
+}
