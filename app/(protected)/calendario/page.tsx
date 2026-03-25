@@ -90,7 +90,7 @@ export default function CalendarioPage() {
         return time.slice(0, 5)
     }
 
-    const monthName = currentMonth.toLocaleDateString('es-PE', { month: 'long', year: 'numeric' })
+    const monthName = currentMonth.toLocaleDateString('es-PE', { month: 'long', year: 'numeric' }).replace(' de ', ' ')
 
     // Agenda: group sessions by date
     const sessionsByDate = useMemo(() => {
