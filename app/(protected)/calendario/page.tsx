@@ -103,6 +103,7 @@ export default function CalendarioPage() {
     }, [sessions])
 
     return (
+        <>
         <div className="max-w-6xl mx-auto space-y-6 animate-fade-in-up">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -275,10 +276,11 @@ export default function CalendarioPage() {
                     )}
                 </div>
             )}
+            </div>
 
             {/* Session Detail Modal */}
             {selectedSession && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedSession(null)}>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedSession(null)}>
                     <div
                         className="glass rounded-2xl p-8 max-w-lg w-full animate-scale-in max-h-[90vh] overflow-y-auto"
                         onClick={e => e.stopPropagation()}
@@ -367,6 +369,6 @@ export default function CalendarioPage() {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     )
 }
