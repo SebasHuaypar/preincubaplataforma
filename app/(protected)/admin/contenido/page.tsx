@@ -14,6 +14,7 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ConfirmModal'
+import Select from '@/components/Select'
 
 export default function AdminContenidoPage() {
     const { isAdmin, loading } = useAuth()
@@ -97,12 +98,16 @@ export default function AdminContenidoPage() {
                             <div className="col-span-2">
                                 <input className="input-glass" value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Título del anuncio" />
                             </div>
-                            <select className="input-glass" value={newPriority} onChange={e => setNewPriority(e.target.value as Announcement['priority'])}>
-                                <option value="low">Baja</option>
-                                <option value="normal">Normal</option>
-                                <option value="high">Alta</option>
-                                <option value="urgent">Urgente</option>
-                            </select>
+                            <Select
+                                value={newPriority}
+                                onChange={v => setNewPriority(v as Announcement['priority'])}
+                                options={[
+                                    { value: 'low', label: 'Baja' },
+                                    { value: 'normal', label: 'Normal' },
+                                    { value: 'high', label: 'Alta' },
+                                    { value: 'urgent', label: 'Urgente' },
+                                ]}
+                            />
                         </div>
                         <textarea className="input-glass resize-none" rows={3} value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="Contenido del anuncio..." />
                         <button

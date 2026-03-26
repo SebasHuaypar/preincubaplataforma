@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { getSupabase, Week, Session as SessionType, Mentor } from '@/lib/supabase'
+import { getSupabase, Week, Session as SessionType, Mentor, Speaker } from '@/lib/supabase'
 import {
     Plus,
     Pencil,
@@ -21,6 +21,7 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ConfirmModal'
+import Select, { SelectOption } from '@/components/Select'
 
 export default function AdminProgramaPage() {
     const { isAdmin, loading } = useAuth()
@@ -28,6 +29,7 @@ export default function AdminProgramaPage() {
     const [weeks, setWeeks] = useState<Week[]>([])
     const [sessions, setSessions] = useState<SessionType[]>([])
     const [mentors, setMentors] = useState<Mentor[]>([])
+    const [speakers, setSpeakers] = useState<Speaker[]>([])
     const [expandedWeek, setExpandedWeek] = useState<string | null>(null)
 
     // Week editing
@@ -49,14 +51,16 @@ export default function AdminProgramaPage() {
 
     async function fetchData() {
         const sb = getSupabase()
-        const [w, s, m] = await Promise.all([
+        const [w, s, m, sp] = await Promise.all([
             sb.from('weeks').select('*').order('week_number'),
             sb.from('sessions').select('*').order('session_date').order('start_time'),
             sb.from('mentors').select('*').eq('is_active', true).order('name'),
+            sb.from('speakers').select('*').eq('is_active', true).order('name'),
         ])
         if (w.data) setWeeks(w.data)
         if (s.data) setSessions(s.data)
         if (m.data) setMentors(m.data)
+        if (sp.data) setSpeakers(sp.data)
     }
 
     function getSessionsForWeek(weekId: string) {
@@ -219,6 +223,10 @@ export default function AdminProgramaPage() {
                                             <label className="text-white/40 text-xs mb-1 block">Descripción del Entregable</label>
                                             <textarea className="input-glass resize-none" rows={2} value={weekForm.deliverable_description || ''} onChange={e => setWeekForm({ ...weekForm, deliverable_description: e.target.value })} />
                                         </div>
+                                        <div className="col-span-2">
+                                            <label className="text-white/40 text-xs mb-1 block">🔗 Link Plantilla Canva (opcional)</label>
+                                            <input className="input-glass" value={(weekForm as any).template_url || ''} onChange={e => setWeekForm({ ...weekForm, template_url: e.target.value } as any)} placeholder="https://www.canva.com/design/..." />
+                                        </div>
                                     </div>
                                     <div className="flex justify-end gap-2 pt-2">
                                         <button onClick={() => { setEditingWeek(null); setWeekForm({}) }} className="px-3 py-1.5 text-white/40 text-sm cursor-pointer">Cancelar</button>
@@ -266,6 +274,7 @@ export default function AdminProgramaPage() {
                                                     form={sessionForm}
                                                     setForm={setSessionForm}
                                                     mentors={mentors}
+                                                    speakers={speakers}
                                                     onSave={saveSession}
                                                     onCancel={() => { setEditingSession(null); setSessionForm({}) }}
                                                     saving={saving}
@@ -302,6 +311,7 @@ export default function AdminProgramaPage() {
                                             form={sessionForm}
                                             setForm={setSessionForm}
                                             mentors={mentors}
+                                            speakers={speakers}
                                             onSave={saveSession}
                                             onCancel={() => { setCreatingSessionWeek(null); setSessionForm({}) }}
                                             saving={saving}
@@ -351,10 +361,11 @@ export default function AdminProgramaPage() {
 }
 
 // Session form subcomponent
-function SessionForm({ form, setForm, mentors, onSave, onCancel, saving }: {
+function SessionForm({ form, setForm, mentors, speakers, onSave, onCancel, saving }: {
     form: Partial<SessionType>
     setForm: (f: Partial<SessionType>) => void
     mentors: Mentor[]
+    speakers: Speaker[]
     onSave: () => void
     onCancel: () => void
     saving: boolean
@@ -372,12 +383,16 @@ function SessionForm({ form, setForm, mentors, onSave, onCancel, saving }: {
                 </div>
                 <div>
                     <label className="text-white/40 text-xs mb-1 block">Tipo</label>
-                    <select className="input-glass" value={form.session_type || 'ponencia'} onChange={e => setForm({ ...form, session_type: e.target.value as SessionType['session_type'] })}>
-                        <option value="ponencia">Ponencia</option>
-                        <option value="taller">Taller</option>
-                        <option value="mentoria">Mentoría</option>
-                        <option value="demo_day">Demo Day</option>
-                    </select>
+                    <Select
+                        value={form.session_type || 'ponencia'}
+                        onChange={v => setForm({ ...form, session_type: v as SessionType['session_type'] })}
+                        options={[
+                            { value: 'ponencia', label: 'Ponencia' },
+                            { value: 'taller', label: 'Taller' },
+                            { value: 'mentoria', label: 'Mentoría' },
+                            { value: 'demo_day', label: 'Demo Day' },
+                        ]}
+                    />
                 </div>
                 <div>
                     <label className="text-white/40 text-xs mb-1 block">Hora inicio</label>
@@ -388,11 +403,24 @@ function SessionForm({ form, setForm, mentors, onSave, onCancel, saving }: {
                     <input className="input-glass" type="time" value={form.end_time || ''} onChange={e => setForm({ ...form, end_time: e.target.value })} />
                 </div>
                 <div className="col-span-2">
-                    <label className="text-white/40 text-xs mb-1 block">Mentor</label>
-                    <select className="input-glass" value={form.mentor_id || ''} onChange={e => setForm({ ...form, mentor_id: e.target.value || null })}>
-                        <option value="">Sin mentor asignado</option>
-                        {mentors.map(m => <option key={m.id} value={m.id}>{m.name} {m.company ? `(${m.company})` : ''}</option>)}
-                    </select>
+                    <label className="text-white/40 text-xs mb-1 block">Ponente</label>
+                    <Select
+                        value={form.mentor_id ? `mentor:${form.mentor_id}` : form.speaker_id ? `speaker:${form.speaker_id}` : ''}
+                        onChange={val => {
+                            if (!val) {
+                                setForm({ ...form, mentor_id: null, speaker_id: null })
+                            } else if (val.startsWith('mentor:')) {
+                                setForm({ ...form, mentor_id: val.replace('mentor:', ''), speaker_id: null })
+                            } else {
+                                setForm({ ...form, speaker_id: val.replace('speaker:', ''), mentor_id: null })
+                            }
+                        }}
+                        placeholder="Sin ponente asignado"
+                        options={[
+                            ...(mentors.length > 0 ? mentors.map(m => ({ value: `mentor:${m.id}`, label: `${m.name}${m.company ? ` (${m.company})` : ''}`, group: 'Mentores' })) : []),
+                            ...(speakers.length > 0 ? speakers.map(s => ({ value: `speaker:${s.id}`, label: `${s.name}${s.company ? ` (${s.company})` : ''}`, group: 'Speakers' })) : []),
+                        ]}
+                    />
                 </div>
                 <div className="col-span-2">
                     <label className="text-white/40 text-xs mb-1 block">Descripción</label>
@@ -405,6 +433,10 @@ function SessionForm({ form, setForm, mentors, onSave, onCancel, saving }: {
                 <div>
                     <label className="text-white/40 text-xs mb-1 block">Link de grabación</label>
                     <input className="input-glass" value={form.recording_url || ''} onChange={e => setForm({ ...form, recording_url: e.target.value })} placeholder="https://youtube.com/..." />
+                </div>
+                <div>
+                    <label className="text-white/40 text-xs mb-1 block">Link de diapositivas / PPT</label>
+                    <input className="input-glass" value={(form as any).slides_url || ''} onChange={e => setForm({ ...form, slides_url: e.target.value } as any)} placeholder="https://docs.google.com/presentation/..." />
                 </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">

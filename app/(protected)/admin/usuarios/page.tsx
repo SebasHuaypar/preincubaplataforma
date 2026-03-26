@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Select from '@/components/Select'
 
 export default function AdminUsuariosPage() {
     const { isAdmin, loading } = useAuth()
@@ -209,10 +210,14 @@ export default function AdminUsuariosPage() {
                         </div>
                         <div>
                             <label className="text-white/40 text-xs font-medium mb-1 block">Rol *</label>
-                            <select className="input-glass" value={role} onChange={e => setRole(e.target.value as 'admin' | 'participant')}>
-                                <option value="participant">Participante</option>
-                                <option value="admin">Administrador</option>
-                            </select>
+                            <Select
+                                value={role}
+                                onChange={v => setRole(v as 'admin' | 'participant')}
+                                options={[
+                                    { value: 'participant', label: 'Participante' },
+                                    { value: 'admin', label: 'Administrador' },
+                                ]}
+                            />
                         </div>
                         <div className="sm:col-span-2">
                             <label className="text-white/40 text-xs font-medium mb-1 block">

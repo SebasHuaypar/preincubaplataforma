@@ -13,10 +13,13 @@ import {
     Loader2,
     ArrowLeft,
     Filter,
+    Search,
+    ExternalLink,
     FileText
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Select from '@/components/Select'
 
 export default function AdminEntregasPage() {
     const { isAdmin, loading } = useAuth()
@@ -25,6 +28,7 @@ export default function AdminEntregasPage() {
     const [weeks, setWeeks] = useState<Week[]>([])
     const [filterWeek, setFilterWeek] = useState('')
     const [filterStatus, setFilterStatus] = useState('')
+    const [filterGroup, setFilterGroup] = useState('')
     const [feedbackId, setFeedbackId] = useState<string | null>(null)
     const [feedbackText, setFeedbackText] = useState('')
     const [saving, setSaving] = useState(false)
@@ -72,6 +76,7 @@ export default function AdminEntregasPage() {
     const filtered = submissions.filter(s => {
         if (filterWeek && s.week_id !== filterWeek) return false
         if (filterStatus && s.status !== filterStatus) return false
+        if (filterGroup && !(s.group_name?.toLowerCase().includes(filterGroup.toLowerCase()))) return false
         return true
     })
 
@@ -103,18 +108,36 @@ export default function AdminEntregasPage() {
             <div className="flex flex-wrap gap-3 mb-6">
                 <div className="flex items-center gap-2">
                     <Filter className="w-4 h-4 text-white/30" />
-                    <select className="input-glass !w-auto !py-1.5 text-xs" value={filterWeek} onChange={e => setFilterWeek(e.target.value)}>
-                        <option value="">Todas las semanas</option>
-                        {weeks.map(w => <option key={w.id} value={w.id}>Semana {w.week_number}: {w.title}</option>)}
-                    </select>
+                    <Select
+                        value={filterWeek}
+                        onChange={setFilterWeek}
+                        placeholder="Todas las semanas"
+                        className="w-48"
+                        options={weeks.map(w => ({ value: w.id, label: `Semana ${w.week_number}: ${w.title}` }))}
+                    />
                 </div>
-                <select className="input-glass !w-auto !py-1.5 text-xs" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-                    <option value="">Todos los estados</option>
-                    <option value="submitted">Enviado</option>
-                    <option value="reviewed">Revisado</option>
-                    <option value="approved">Aprobado</option>
-                    <option value="rejected">Rechazado</option>
-                </select>
+                <Select
+                    value={filterStatus}
+                    onChange={setFilterStatus}
+                    placeholder="Todos los estados"
+                    className="w-44"
+                    options={[
+                        { value: 'submitted', label: 'Enviado' },
+                        { value: 'reviewed', label: 'Revisado' },
+                        { value: 'approved', label: 'Aprobado' },
+                        { value: 'rejected', label: 'Rechazado' },
+                    ]}
+                />
+                <div className="relative flex items-center">
+                    <Search className="w-4 h-4 text-white/30 absolute left-3 pointer-events-none" />
+                    <input
+                        type="text"
+                        placeholder="Buscar por grupo..."
+                        value={filterGroup}
+                        onChange={e => setFilterGroup(e.target.value)}
+                        className="input-glass !pl-10 w-48"
+                    />
+                </div>
             </div>
 
             {/* Submissions list */}
@@ -136,6 +159,11 @@ export default function AdminEntregasPage() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
                                         <p className="text-white font-medium text-sm">{profile?.full_name || profile?.email || 'Usuario'}</p>
+                                        {sub.group_name && (
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-medium">
+                                                {sub.group_name}
+                                            </span>
+                                        )}
                                         <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full inline-flex items-center justify-center leading-none ${
                                             sub.status === 'approved' ? 'status-approved' :
                                             sub.status === 'rejected' ? 'status-rejected' :
@@ -154,18 +182,23 @@ export default function AdminEntregasPage() {
                                         </p>
                                     )}
 
-                                    {/* File */}
+                                    {/* Submission link */}
                                     <div className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.02] border border-white/[0.04] mb-2">
-                                        <FileText className="w-5 h-5 text-yellow-600/40" />
+                                        <ExternalLink className="w-5 h-5 text-yellow-600/40 flex-shrink-0" />
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-white/60 text-xs truncate">{sub.file_name}</p>
-                                            <p className="text-white/20 text-[10px]">{formatFileSize(sub.file_size)} · {formatDate(sub.created_at)}</p>
+                                            {sub.link_url ? (
+                                                <a href={sub.link_url} target="_blank" rel="noopener noreferrer" className="text-yellow-600/80 text-xs truncate block hover:text-yellow-600 transition-colors">
+                                                    {sub.link_url}
+                                                </a>
+                                            ) : sub.file_url ? (
+                                                <a href={sub.file_url} target="_blank" rel="noopener noreferrer" className="text-white/60 text-xs truncate block hover:text-white/80 transition-colors">
+                                                    {sub.file_name || 'Ver archivo'}
+                                                </a>
+                                            ) : (
+                                                <p className="text-white/30 text-xs">Sin entrega</p>
+                                            )}
+                                            <p className="text-white/20 text-[10px] mt-0.5">{formatDate(sub.created_at)}</p>
                                         </div>
-                                        {sub.file_url && (
-                                            <a href={sub.file_url} target="_blank" rel="noopener noreferrer" className="p-1.5 hover:bg-white/5 rounded-lg">
-                                                <Download className="w-3.5 h-3.5 text-white/30" />
-                                            </a>
-                                        )}
                                     </div>
 
                                     {sub.notes && (

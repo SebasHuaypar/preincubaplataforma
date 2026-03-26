@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getSupabase, Mentor } from '@/lib/supabase'
-import { ExternalLink, Mail, Briefcase } from 'lucide-react'
+import { ExternalLink, Mail, Briefcase, CalendarDays } from 'lucide-react'
 
 export default function MentoresPage() {
     const [mentors, setMentors] = useState<Mentor[]>([])
@@ -72,6 +72,18 @@ export default function MentoresPage() {
                                     </p>
                                 )}
 
+                                {/* Calendly CTA */}
+                                {mentor.calendly_url && (
+                                    <a
+                                        href={mentor.calendly_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-yellow-600/20 text-yellow-600 font-bold rounded-xl hover:bg-yellow-600/30 transition-all text-xs mb-3"
+                                    >
+                                        📅 Agendar reunión
+                                    </a>
+                                )}
+
                                 {/* Links */}
                                 <div className="flex items-center gap-2 pt-3 border-t border-white/[0.06]">
                                     {mentor.linkedin_url && (
@@ -90,6 +102,16 @@ export default function MentoresPage() {
                                             className="p-2 rounded-lg hover:bg-white/5 transition-colors group/link"
                                         >
                                             <Mail className="w-4 h-4 text-white/30 group-hover/link:text-yellow-600 transition-colors" />
+                                        </a>
+                                    )}
+                                    {mentor.calendly_url && (
+                                        <a
+                                            href={mentor.calendly_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-2 rounded-lg hover:bg-white/5 transition-colors group/link"
+                                        >
+                                            <CalendarDays className="w-4 h-4 text-white/30 group-hover/link:text-yellow-600 transition-colors" />
                                         </a>
                                     )}
                                 </div>

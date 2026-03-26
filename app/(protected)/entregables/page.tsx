@@ -1,29 +1,30 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { getSupabase, Week, Submission } from '@/lib/supabase'
 import {
     FileUp,
-    Upload,
     CheckCircle2,
     XCircle,
     Clock,
     Eye,
-    Download,
-    FileText,
-    Trash2,
+    ExternalLink,
     Loader2,
-    MessageSquare
+    MessageSquare,
+    Link,
+    Palette,
+    Send,
 } from 'lucide-react'
 
 export default function EntregablesPage() {
     const { profile } = useAuth()
     const [weeks, setWeeks] = useState<Week[]>([])
     const [submissions, setSubmissions] = useState<Submission[]>([])
-    const [uploading, setUploading] = useState<string | null>(null)
-    const [uploadNotes, setUploadNotes] = useState<Record<string, string>>({})
-    const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
+    const [submitting, setSubmitting] = useState<string | null>(null)
+    const [linkInputs, setLinkInputs] = useState<Record<string, string>>({})
+    const [notes, setNotes] = useState<Record<string, string>>({})
+    const [groupNames, setGroupNames] = useState<Record<string, string>>({})
 
     useEffect(() => {
         fetchData()
@@ -31,7 +32,6 @@ export default function EntregablesPage() {
 
     async function fetchData() {
         const sb = getSupabase()
-
         const { data: weeksData } = await sb.from('weeks').select('*').order('week_number')
         if (weeksData) setWeeks(weeksData)
 
@@ -45,62 +45,39 @@ export default function EntregablesPage() {
         }
     }
 
-    async function handleUpload(weekId: string, file: File) {
+    async function handleSubmit(weekId: string) {
         if (!profile) return
-        setUploading(weekId)
+        const link = linkInputs[weekId]?.trim()
+        if (!link) { alert('Por favor ingresa el link de tu Canva.'); return }
 
+        setSubmitting(weekId)
         try {
             const sb = getSupabase()
-            const ext = file.name.split('.').pop()
-            const path = `${profile.id}/${weekId}/${Date.now()}.${ext}`
-
-            // Upload file
-            const { error: uploadError } = await sb.storage
-                .from('uploads')
-                .upload(path, file)
-
-            if (uploadError) throw uploadError
-
-            // Get public URL
-            const { data: { publicUrl } } = sb.storage
-                .from('uploads')
-                .getPublicUrl(path)
-
-            // Create submission record
-            const { error: insertError } = await sb
+            const { error } = await sb
                 .from('submissions')
                 .insert({
                     user_id: profile.id,
                     week_id: weekId,
-                    file_url: publicUrl,
-                    file_name: file.name,
-                    file_size: file.size,
-                    notes: uploadNotes[weekId] || null,
+                    link_url: link,
+                    notes: notes[weekId] || null,
+                    group_name: groupNames[weekId]?.trim() || null,
                     status: 'submitted',
                 })
-
-            if (insertError) throw insertError
-
-            // Refresh
+            if (error) throw error
             fetchData()
-            setUploadNotes(prev => ({ ...prev, [weekId]: '' }))
+            setLinkInputs(prev => ({ ...prev, [weekId]: '' }))
+            setNotes(prev => ({ ...prev, [weekId]: '' }))
+            setGroupNames(prev => ({ ...prev, [weekId]: '' }))
         } catch (err) {
-            console.error('Upload error:', err)
-            alert('Error al subir el archivo. Intenta de nuevo.')
+            console.error('Submit error:', err)
+            alert('Error al enviar. Intenta de nuevo.')
         } finally {
-            setUploading(null)
+            setSubmitting(null)
         }
     }
 
     function getSubmission(weekId: string) {
         return submissions.find(s => s.week_id === weekId)
-    }
-
-    function formatFileSize(bytes: number | null) {
-        if (!bytes) return ''
-        if (bytes < 1024) return `${bytes} B`
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
     }
 
     function formatDate(dateStr: string) {
@@ -120,7 +97,7 @@ export default function EntregablesPage() {
         <div className="max-w-4xl mx-auto animate-fade-in-up">
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-white">Mis Entregables</h1>
-                <p className="text-white/40 text-sm mt-1">Sube tus entregas semanales aquí</p>
+                <p className="text-white/40 text-sm mt-1">Comparte el link de tu Canva editado para cada semana</p>
             </div>
 
             <div className="space-y-6">
@@ -163,6 +140,20 @@ export default function EntregablesPage() {
                                 {week.deliverable_description && (
                                     <p className="text-white/30 text-xs mt-1">{week.deliverable_description}</p>
                                 )}
+
+                                {/* Template link */}
+                                {week.template_url && (
+                                    <a
+                                        href={week.template_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-[#00C4CC]/10 text-[#00C4CC] rounded-lg text-xs font-medium hover:bg-[#00C4CC]/20 transition-colors"
+                                    >
+                                        <Palette className="w-3.5 h-3.5" />
+                                        Ver plantilla en Canva
+                                        <ExternalLink className="w-3 h-3 opacity-60" />
+                                    </a>
+                                )}
                             </div>
 
                             {/* Content */}
@@ -170,25 +161,32 @@ export default function EntregablesPage() {
                                 {sub ? (
                                     /* ===== Existing submission ===== */
                                     <div className="space-y-4">
-                                        {/* File info */}
+                                        {/* Link submitted */}
                                         <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                                            <FileText className="w-8 h-8 text-yellow-600/40" />
+                                            <Link className="w-6 h-6 text-yellow-600/40 flex-shrink-0" />
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-white/80 text-sm font-medium truncate">{sub.file_name}</p>
-                                                <p className="text-white/30 text-xs">
-                                                    {formatFileSize(sub.file_size)} · {formatDate(sub.created_at)}
-                                                </p>
-                                            </div>
-                                            {sub.file_url && (
+                                                <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mb-0.5">Entrega enviada</p>
                                                 <a
-                                                    href={sub.file_url}
+                                                    href={(sub.link_url || sub.file_url) ?? '#'}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                                                    className="text-yellow-600/80 text-sm truncate block hover:text-yellow-600 transition-colors"
                                                 >
-                                                    <Download className="w-4 h-4 text-white/40" />
+                                                    {sub.link_url || sub.file_url || '—'}
                                                 </a>
-                                            )}
+                                                {sub.group_name && (
+                                                    <p className="text-white/30 text-[10px] mt-0.5">Grupo: <span className="text-white/50 font-medium">{sub.group_name}</span></p>
+                                                )}
+                                                <p className="text-white/20 text-[10px] mt-0.5">{formatDate(sub.created_at)}</p>
+                                            </div>
+                                            <a
+                                                href={(sub.link_url || sub.file_url) ?? '#'}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                                            >
+                                                <ExternalLink className="w-4 h-4 text-white/30" />
+                                            </a>
                                         </div>
 
                                         {/* Notes */}
@@ -211,53 +209,54 @@ export default function EntregablesPage() {
                                         )}
                                     </div>
                                 ) : (
-                                    /* ===== Upload area ===== */
-                                    <div>
-                                        <input
-                                            ref={(el) => { fileInputRefs.current[week.id] = el }}
-                                            type="file"
-                                            className="hidden"
-                                            accept=".pdf,.pptx,.ppt,.doc,.docx,.xls,.xlsx,.zip,.rar,.png,.jpg,.jpeg,.mp4,.figma"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0]
-                                                if (file) handleUpload(week.id, file)
-                                            }}
-                                        />
-
-                                        {/* Notes input */}
-                                        <textarea
-                                            value={uploadNotes[week.id] || ''}
-                                            onChange={(e) => setUploadNotes(prev => ({ ...prev, [week.id]: e.target.value }))}
-                                            className="input-glass mb-3 resize-none"
-                                            rows={2}
-                                            placeholder="Notas adicionales (opcional)..."
-                                        />
-
-                                        {/* Drop zone */}
-                                        <div
-                                            className={`drop-zone ${uploading === week.id ? 'border-yellow-600/40 bg-yellow-600/5' : ''}`}
-                                            onClick={() => fileInputRefs.current[week.id]?.click()}
-                                            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over') }}
-                                            onDragLeave={(e) => e.currentTarget.classList.remove('drag-over')}
-                                            onDrop={(e) => {
-                                                e.preventDefault()
-                                                e.currentTarget.classList.remove('drag-over')
-                                                const file = e.dataTransfer.files?.[0]
-                                                if (file) handleUpload(week.id, file)
-                                            }}
-                                        >
-                                            {uploading === week.id ? (
-                                                <Loader2 className="w-8 h-8 text-yellow-600 animate-spin mx-auto mb-2" />
-                                            ) : (
-                                                <Upload className="w-8 h-8 text-white/15 mx-auto mb-2" />
-                                            )}
-                                            <p className="text-white/40 text-sm font-medium">
-                                                {uploading === week.id ? 'Subiendo...' : 'Arrastra tu archivo aquí o haz click'}
-                                            </p>
-                                            <p className="text-white/20 text-xs mt-1">
-                                                PDF, PPTX, DOC, XLSX, ZIP, imágenes (máx. 50MB)
-                                            </p>
+                                    /* ===== Link submission ===== */
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="text-white/40 text-xs font-medium mb-1.5 block">Nombre del grupo *</label>
+                                            <input
+                                                type="text"
+                                                className="input-glass"
+                                                placeholder="Ej: Equipo Alpha, Grupo 3..."
+                                                value={groupNames[week.id] || ''}
+                                                onChange={e => setGroupNames(prev => ({ ...prev, [week.id]: e.target.value }))}
+                                            />
                                         </div>
+                                        <div>
+                                            <label className="text-white/40 text-xs font-medium mb-1.5 flex items-center gap-1.5">
+                                                <Link className="w-3.5 h-3.5" />
+                                                Link de tu Canva editado *
+                                            </label>
+                                            <input
+                                                type="url"
+                                                className="input-glass"
+                                                placeholder="https://www.canva.com/design/tu-diseño/..."
+                                                value={linkInputs[week.id] || ''}
+                                                onChange={e => setLinkInputs(prev => ({ ...prev, [week.id]: e.target.value }))}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="text-white/40 text-xs font-medium mb-1.5 block">Notas adicionales (opcional)</label>
+                                            <textarea
+                                                value={notes[week.id] || ''}
+                                                onChange={e => setNotes(prev => ({ ...prev, [week.id]: e.target.value }))}
+                                                className="input-glass resize-none"
+                                                rows={2}
+                                                placeholder="Contexto sobre tu entrega..."
+                                            />
+                                        </div>
+
+                                        <button
+                                            onClick={() => handleSubmit(week.id)}
+                                            disabled={submitting === week.id || !linkInputs[week.id]?.trim() || !groupNames[week.id]?.trim()}
+                                            className="flex items-center gap-2 px-5 py-2.5 bg-yellow-600 text-navy-900 font-bold rounded-xl hover:bg-yellow-500 transition-all text-sm disabled:opacity-40 cursor-pointer"
+                                        >
+                                            {submitting === week.id
+                                                ? <Loader2 className="w-4 h-4 animate-spin" />
+                                                : <Send className="w-4 h-4" />
+                                            }
+                                            {submitting === week.id ? 'Enviando...' : 'Enviar entrega'}
+                                        </button>
                                     </div>
                                 )}
                             </div>

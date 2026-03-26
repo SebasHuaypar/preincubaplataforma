@@ -342,7 +342,7 @@ export default function CalendarioPage() {
                         })()}
 
                         {/* Action buttons */}
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 flex-wrap">
                             {selectedSession.meeting_url && (
                                 <a
                                     href={selectedSession.meeting_url}
@@ -363,6 +363,20 @@ export default function CalendarioPage() {
                                 >
                                     <ExternalLink className="w-4 h-4" />
                                     Ver grabación
+                                </a>
+                            )}
+                            {selectedSession.slides_url && (
+                                <a
+                                    href={selectedSession.slides_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 px-4 py-3 bg-white/5 text-white/70 font-medium rounded-xl hover:bg-white/10 transition-all text-sm"
+                                >
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                        <path d="M8 21h8M12 17v4"/>
+                                    </svg>
+                                    Ver PPT
                                 </a>
                             )}
                         </div>

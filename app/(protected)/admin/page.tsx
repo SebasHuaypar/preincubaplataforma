@@ -12,7 +12,8 @@ import {
     UserPlus,
     Megaphone,
     ArrowRight,
-    Shield
+    Shield,
+    Mic
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -27,6 +28,8 @@ export default function AdminDashboard() {
         pendingSubmissions: 0,
         totalSessions: 0,
         totalMentors: 0,
+        totalSpeakers: 0,
+        totalAnnouncements: 0,
     })
 
     useEffect(() => {
@@ -39,11 +42,13 @@ export default function AdminDashboard() {
 
     async function fetchStats() {
         const sb = getSupabase()
-        const [users, submissions, sessions, mentors] = await Promise.all([
+        const [users, submissions, sessions, mentors, speakers, announcements] = await Promise.all([
             sb.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'participant'),
             sb.from('submissions').select('id, status', { count: 'exact' }),
             sb.from('sessions').select('id', { count: 'exact', head: true }),
             sb.from('mentors').select('id', { count: 'exact', head: true }).eq('is_active', true),
+            sb.from('speakers').select('id', { count: 'exact', head: true }).eq('is_active', true),
+            sb.from('announcements').select('id', { count: 'exact', head: true }),
         ])
 
         const subsData = submissions.data || []
@@ -54,6 +59,8 @@ export default function AdminDashboard() {
             pendingSubmissions: subsData.filter((s: { status: string }) => s.status === 'submitted').length,
             totalSessions: sessions.count || 0,
             totalMentors: mentors.count || 0,
+            totalSpeakers: speakers.count || 0,
+            totalAnnouncements: announcements.count || 0,
         })
     }
 
@@ -66,13 +73,17 @@ export default function AdminDashboard() {
         { label: 'Aprobadas', value: stats.approvedSubmissions, icon: TrendingUp, color: '#818cf8' },
         { label: 'Sesiones', value: stats.totalSessions, icon: Calendar, color: '#FFC700' },
         { label: 'Mentores Activos', value: stats.totalMentors, icon: BookOpen, color: '#34d399' },
+        { label: 'Speakers Activos', value: stats.totalSpeakers, icon: Mic, color: '#6366f1' },
+        { label: 'Anuncios', value: stats.totalAnnouncements, icon: Megaphone, color: '#f59e0b' },
     ]
 
     const quickActions = [
         { label: 'Crear Usuario', href: '/admin/usuarios', icon: UserPlus, description: 'Añadir un nuevo participante' },
         { label: 'Gestionar Mentores', href: '/admin/mentores', icon: Users, description: 'Agregar o editar mentores' },
+        { label: 'Gestionar Speakers', href: '/admin/speakers', icon: Mic, description: 'Agregar o editar speakers' },
         { label: 'Gestionar Programa', href: '/admin/programa', icon: BookOpen, description: 'Semanas y sesiones' },
         { label: 'Revisar Entregas', href: '/admin/entregas', icon: FileUp, description: 'Ver y evaluar entregas' },
+        { label: 'Gestionar Anuncios', href: '/admin/contenido', icon: Megaphone, description: 'Publicar notificaciones' },
     ]
 
     return (
@@ -86,7 +97,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {statCards.map((card) => (
                     <div key={card.label} className="glass-card rounded-xl p-5">
                         <div className="flex items-center gap-3 mb-3">
@@ -106,7 +117,7 @@ export default function AdminDashboard() {
             {/* Quick Actions */}
             <div>
                 <h2 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-4">Acciones Rápidas</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {quickActions.map((action) => (
                         <Link
                             key={action.href}

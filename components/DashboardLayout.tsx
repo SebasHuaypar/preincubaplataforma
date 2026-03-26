@@ -23,19 +23,22 @@ import {
     X,
     AlertTriangle,
     Info,
-    Menu
+    Menu,
+    Mic
 } from 'lucide-react'
 
 const participantLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/calendario', label: 'Calendario', icon: Calendar },
     { href: '/mentores', label: 'Mentores', icon: Users },
+    { href: '/speakers', label: 'Speakers', icon: Mic },
     { href: '/entregables', label: 'Mis Entregables', icon: FileUp },
 ]
 
 const adminLinks = [
     { href: '/admin', label: 'Panel Admin', icon: Shield },
     { href: '/admin/mentores', label: 'Gestionar Mentores', icon: Users },
+    { href: '/admin/speakers', label: 'Gestionar Speakers', icon: Mic },
     { href: '/admin/programa', label: 'Gestionar Programa', icon: BookOpen },
     { href: '/admin/usuarios', label: 'Gestionar Usuarios', icon: UserCircle },
     { href: '/admin/entregas', label: 'Revisar Entregas', icon: FileUp },
