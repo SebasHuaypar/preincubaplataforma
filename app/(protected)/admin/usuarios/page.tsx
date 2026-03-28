@@ -13,7 +13,8 @@ import {
     Copy,
     Check,
     Pencil,
-    Shield
+    Shield,
+    X
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -150,7 +151,8 @@ export default function AdminUsuariosPage() {
     if (!isAdmin) return null
 
     return (
-        <div className="max-w-4xl mx-auto animate-fade-in-up">
+        <>
+            <div className="max-w-4xl mx-auto animate-fade-in-up">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-3">
                     <Link href="/admin" className="p-2 hover:bg-white/5 rounded-lg transition-colors">
@@ -195,51 +197,7 @@ export default function AdminUsuariosPage() {
                 </div>
             )}
 
-            {/* Form */}
-            {(showCreate || isEditing) && (
-                <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-6 mb-8 animate-scale-in">
-                    <h3 className="text-white font-bold mb-6">{showCreate ? 'Nuevo Usuario' : 'Editar Usuario'}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="sm:col-span-2">
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Nombre completo</label>
-                            <input className="input-glass" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Nombre del usuario" />
-                        </div>
-                        <div>
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Email *</label>
-                            <input className="input-glass" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@ejemplo.com" required />
-                        </div>
-                        <div>
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Rol *</label>
-                            <Select
-                                value={role}
-                                onChange={v => setRole(v as 'admin' | 'participant')}
-                                options={[
-                                    { value: 'participant', label: 'Participante' },
-                                    { value: 'admin', label: 'Administrador' },
-                                ]}
-                            />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <label className="text-white/40 text-xs font-medium mb-1 block">
-                                {isEditing ? 'Nueva Contraseña (dejar en blanco para no cambiar)' : 'Contraseña *'}
-                            </label>
-                            <div className="flex gap-2">
-                                <input className="input-glass flex-1" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required={showCreate} />
-                                <button type="button" onClick={generatePassword} className="px-3 py-2 bg-white/5 rounded-xl text-white/40 hover:text-white/60 text-xs transition-colors cursor-pointer">
-                                    <Key className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/[0.06]">
-                        <button type="button" onClick={cancelForm} className="px-4 py-2 text-white/40 text-sm cursor-pointer">Cancelar</button>
-                        <button type="submit" disabled={saving || !email || (showCreate && !password)} className="flex items-center gap-2 px-5 py-2 bg-yellow-600 text-navy-900 font-bold rounded-xl hover:bg-yellow-500 text-sm disabled:opacity-50 cursor-pointer">
-                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : showCreate ? <UserPlus className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
-                            {showCreate ? 'Crear' : 'Actualizar'}
-                        </button>
-                    </div>
-                </form>
-            )}
+
 
             {/* Users list */}
             <div className="space-y-2">
@@ -286,5 +244,59 @@ export default function AdminUsuariosPage() {
                 )}
             </div>
         </div>
+
+            {/* Form Modal */}
+            {(showCreate || isEditing) && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-navy-900/80 backdrop-blur-sm animate-fade-in">
+                    <div className="w-full max-w-xl animate-scale-in relative">
+                        <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-6">
+                            <button type="button" onClick={cancelForm} className="absolute top-4 right-4 p-2 text-white/30 hover:bg-white/5 hover:text-white rounded-xl transition-colors cursor-pointer z-10">
+                                <X className="w-5 h-5" />
+                            </button>
+                            <h3 className="text-xl text-white font-bold mb-6">{showCreate ? 'Nuevo Usuario' : 'Editar Usuario'}</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="sm:col-span-2">
+                                    <label className="text-white/40 text-xs font-medium mb-1 block">Nombre completo</label>
+                                    <input className="input-glass" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Nombre del usuario" />
+                                </div>
+                                <div>
+                                    <label className="text-white/40 text-xs font-medium mb-1 block">Email *</label>
+                                    <input className="input-glass" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@ejemplo.com" required />
+                                </div>
+                                <div>
+                                    <label className="text-white/40 text-xs font-medium mb-1 block">Rol *</label>
+                                    <Select
+                                        value={role}
+                                        onChange={v => setRole(v as 'admin' | 'participant')}
+                                        options={[
+                                            { value: 'participant', label: 'Participante' },
+                                            { value: 'admin', label: 'Administrador' },
+                                        ]}
+                                    />
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <label className="text-white/40 text-xs font-medium mb-1 block">
+                                        {isEditing ? 'Nueva Contraseña (dejar en blanco para no cambiar)' : 'Contraseña *'}
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <input className="input-glass flex-1" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required={showCreate} />
+                                        <button type="button" onClick={generatePassword} className="px-3 py-2 bg-white/5 rounded-xl text-white/40 hover:text-white/60 text-xs transition-colors cursor-pointer">
+                                            <Key className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/[0.06]">
+                                <button type="button" onClick={cancelForm} className="px-4 py-2 text-white/40 text-sm cursor-pointer hover:bg-white/5 rounded-xl transition-colors">Cancelar</button>
+                                <button type="submit" disabled={saving || !email || (showCreate && !password)} className="flex items-center gap-2 px-5 py-2 bg-yellow-600 text-navy-900 font-bold rounded-xl hover:bg-yellow-500 text-sm disabled:opacity-50 cursor-pointer shadow-[0_0_20px_rgba(250,204,21,0.2)]">
+                                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : showCreate ? <UserPlus className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
+                                    {showCreate ? 'Crear Usuario' : 'Guardar Cambios'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </>
     )
 }

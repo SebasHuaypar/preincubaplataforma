@@ -129,7 +129,8 @@ export default function AdminMentoresPage() {
     const isEditing = editingId || isCreating
 
     return (
-        <div className="max-w-4xl mx-auto animate-fade-in-up">
+        <>
+            <div className="max-w-4xl mx-auto animate-fade-in-up">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-3">
                     <Link href="/admin" className="p-2 hover:bg-white/5 rounded-lg transition-colors">
@@ -150,82 +151,6 @@ export default function AdminMentoresPage() {
                     </button>
                 )}
             </div>
-
-            {/* Edit / Create Form */}
-            {isEditing && (
-                <div className="glass-card rounded-2xl p-6 mb-8 animate-scale-in">
-                    <h3 className="text-white font-bold mb-6">{isCreating ? 'Nuevo Mentor' : 'Editar Mentor'}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Nombre *</label>
-                            <input className="input-glass" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Nombre completo" />
-                        </div>
-                        <div>
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Cargo</label>
-                            <input className="input-glass" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} placeholder="CEO, CTO, Founder..." />
-                        </div>
-                        <div>
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Empresa</label>
-                            <input className="input-glass" value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} placeholder="Nombre de la empresa" />
-                        </div>
-                        <div>
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Email</label>
-                            <input className="input-glass" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="email@ejemplo.com" />
-                        </div>
-                        <div>
-                            <label className="text-white/40 text-xs font-medium mb-1 block">LinkedIn URL</label>
-                            <input className="input-glass" value={form.linkedin_url} onChange={e => setForm({ ...form, linkedin_url: e.target.value })} placeholder="https://linkedin.com/in/..." />
-                        </div>
-                        <div>
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Calendly URL (agendar reunión)</label>
-                            <input className="input-glass" value={form.calendly_url} onChange={e => setForm({ ...form, calendly_url: e.target.value })} placeholder="https://calendly.com/..." />
-                        </div>
-                        <div>
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Orden</label>
-                            <input className="input-glass" type="number" value={form.sort_order} onChange={e => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Biografía</label>
-                            <textarea className="input-glass resize-none" rows={3} value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} placeholder="Breve descripción del mentor..." />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <label className="text-white/40 text-xs font-medium mb-1 block">Foto</label>
-                            <div className="flex items-center gap-4">
-                                {(form.photo_url || photoFile) && (
-                                    <img
-                                        src={photoFile ? URL.createObjectURL(photoFile) : form.photo_url}
-                                        alt="Preview"
-                                        className="w-16 h-16 rounded-xl object-cover"
-                                    />
-                                )}
-                                <label className="flex items-center gap-2 px-4 py-2 bg-white/5 text-white/60 rounded-xl hover:bg-white/10 transition-colors text-sm cursor-pointer">
-                                    <Upload className="w-4 h-4" />
-                                    {photoFile ? photoFile.name : 'Subir foto'}
-                                    <input type="file" className="hidden" accept="image/*" onChange={e => setPhotoFile(e.target.files?.[0] || null)} />
-                                </label>
-                            </div>
-                        </div>
-                        <div className="sm:col-span-2 flex items-center gap-2">
-                            <input type="checkbox" id="is-active" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })} className="accent-yellow-600" />
-                            <label htmlFor="is-active" className="text-white/60 text-sm">Activo (visible para participantes)</label>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-white/[0.06]">
-                        <button onClick={cancelEdit} className="px-4 py-2 text-white/40 hover:text-white/60 text-sm font-medium transition-colors cursor-pointer">
-                            Cancelar
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            disabled={saving || !form.name}
-                            className="flex items-center gap-2 px-5 py-2 bg-yellow-600 text-navy-900 font-bold rounded-xl hover:bg-yellow-500 transition-all text-sm disabled:opacity-50 cursor-pointer"
-                        >
-                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                            Guardar
-                        </button>
-                    </div>
-                </div>
-            )}
 
             {/* Mentors List */}
             <div className="space-y-3">
@@ -279,5 +204,89 @@ export default function AdminMentoresPage() {
                 confirmText="Eliminar"
             />
         </div>
+
+        {/* Edit / Create Form Modal */}
+        {isEditing && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-navy-900/80 backdrop-blur-sm animate-fade-in">
+                <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scale-in relative scrollbar-hide">
+                    <div className="glass-card rounded-2xl p-6 relative">
+                        <button type="button" onClick={cancelEdit} className="absolute top-4 right-4 p-2 text-white/30 hover:bg-white/5 hover:text-white rounded-xl transition-colors cursor-pointer z-10">
+                            <X className="w-5 h-5" />
+                        </button>
+                        <h3 className="text-xl text-white font-bold mb-6">{isCreating ? 'Nuevo Mentor' : 'Editar Mentor'}</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-white/40 text-xs font-medium mb-1 block">Nombre *</label>
+                                <input className="input-glass" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Nombre completo" />
+                            </div>
+                            <div>
+                                <label className="text-white/40 text-xs font-medium mb-1 block">Cargo</label>
+                                <input className="input-glass" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} placeholder="CEO, CTO, Founder..." />
+                            </div>
+                            <div>
+                                <label className="text-white/40 text-xs font-medium mb-1 block">Empresa</label>
+                                <input className="input-glass" value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} placeholder="Nombre de la empresa" />
+                            </div>
+                            <div>
+                                <label className="text-white/40 text-xs font-medium mb-1 block">Email</label>
+                                <input className="input-glass" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="email@ejemplo.com" />
+                            </div>
+                            <div>
+                                <label className="text-white/40 text-xs font-medium mb-1 block">LinkedIn URL</label>
+                                <input className="input-glass" value={form.linkedin_url} onChange={e => setForm({ ...form, linkedin_url: e.target.value })} placeholder="https://linkedin.com/in/..." />
+                            </div>
+                            <div>
+                                <label className="text-white/40 text-xs font-medium mb-1 block">Calendly URL (agendar reunión)</label>
+                                <input className="input-glass" value={form.calendly_url} onChange={e => setForm({ ...form, calendly_url: e.target.value })} placeholder="https://calendly.com/..." />
+                            </div>
+                            <div>
+                                <label className="text-white/40 text-xs font-medium mb-1 block">Orden</label>
+                                <input className="input-glass" type="number" value={form.sort_order} onChange={e => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} />
+                            </div>
+                            <div className="sm:col-span-2">
+                                <label className="text-white/40 text-xs font-medium mb-1 block">Biografía</label>
+                                <textarea className="input-glass resize-none" rows={3} value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} placeholder="Breve descripción del mentor..." />
+                            </div>
+                            <div className="sm:col-span-2">
+                                <label className="text-white/40 text-xs font-medium mb-1 block">Foto</label>
+                                <div className="flex items-center gap-4">
+                                    {(form.photo_url || photoFile) && (
+                                        <img
+                                            src={photoFile ? URL.createObjectURL(photoFile) : form.photo_url}
+                                            alt="Preview"
+                                            className="w-16 h-16 rounded-xl object-cover"
+                                        />
+                                    )}
+                                    <label className="flex items-center gap-2 px-4 py-2 bg-white/5 text-white/60 rounded-xl hover:bg-white/10 transition-colors text-sm cursor-pointer">
+                                        <Upload className="w-4 h-4" />
+                                        {photoFile ? photoFile.name : 'Subir foto'}
+                                        <input type="file" className="hidden" accept="image/*" onChange={e => setPhotoFile(e.target.files?.[0] || null)} />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="sm:col-span-2 flex items-center gap-2">
+                                <input type="checkbox" id="is-active" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })} className="accent-yellow-600" />
+                                <label htmlFor="is-active" className="text-white/60 text-sm">Activo</label>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-white/[0.06]">
+                            <button onClick={cancelEdit} className="px-4 py-2 text-white/40 hover:text-white/60 text-sm font-medium transition-colors cursor-pointer hover:bg-white/5 rounded-xl">
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={saving || !form.name}
+                                className="flex items-center gap-2 px-5 py-2 bg-yellow-600 text-navy-900 font-bold rounded-xl hover:bg-yellow-500 transition-all text-sm disabled:opacity-50 cursor-pointer shadow-[0_0_20px_rgba(250,204,21,0.2)]"
+                            >
+                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     )
 }

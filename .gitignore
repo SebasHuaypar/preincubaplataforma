@@ -45,3 +45,6 @@ CLAUDE.md
 AGENTS.md
 *.sql
 build-output.txt
+*.csv
+*.py
+*.txt
